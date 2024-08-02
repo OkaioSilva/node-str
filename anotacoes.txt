@@ -1,0 +1,57 @@
+Primeiro: crie um arquivo ".js"
+    -> dentro do arquivo, coloque o "use strict" para evitar problemas
+
+Segundo: instalação de 3 pacotes
+    npm install http express debug
+    Importante: ao final, sempre ponha o "--save", ficando assim:
+    npm install http express debug --save
+
+
+Terceiro: criando um servidor web
+    1 - importar o http, o debug, e o express
+    const http = require('http')
+    const debug = require('debug')('nodestr:server') isso é um nome que dou para o debug
+    const express = require('express')
+
+    2 - crie a aplicação:
+        const app = express()
+        const port = 3000; 
+        app.set('port', port)
+    
+    !Cuidado! Atente-se a porta, pois para aplicação local, vai funcionar, mas quando subir a aplicação, nada garante que essa porta não esteja em uso, mas vamos ver isso futuramente 
+
+    3 - criando o servidor
+        const server = http.createServer(app);
+        const router = express.Router();
+
+    4 - configurando a primeira rota:
+        const route = router.get('/', (req, res, next)=>{
+            res.status(200).send({
+                title: "Node Store API",
+                Version: "0.0.1"
+            });
+        });
+        app.use('/', route);
+
+    5 - pedir para o servirdor ficar ouvindo:
+        server.listen(port);
+        console.log("API rodando na porta " + port);
+
+Quarto:  Criar uma função para fazer a API rodar em ua porta disponível
+    1 - função retirada do gerador de código do Express:
+            function normalizePort(val){
+                const port = parseInt(val, 10)
+
+                if(isNaN(port)){
+                    return val;
+                }
+
+                if(port >= 0){
+                    return port
+                }
+
+                return false;
+            }
+
+    2 -  aplicar a função na constante da porta 
+        const port = normalizePort(process.env.PORT || "3000");
