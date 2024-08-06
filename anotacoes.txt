@@ -55,3 +55,56 @@ Quarto:  Criar uma função para fazer a API rodar em ua porta disponível
 
     2 -  aplicar a função na constante da porta 
         const port = normalizePort(process.env.PORT || "3000");
+
+    
+    3 - pegar uma função para gerenciar error do servidor
+        1 -
+                 function onError(error){
+                if(error.syscall !== 'listen'){
+                     throw error;
+                }
+
+                const bind = typeof port == 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+                switch (error.code){
+                    case 'EACCES' :
+                        console.error( bind + 'requires elevated privileges');
+                        process.exit(1);
+                        break;
+                    case 'EADDRINUSE':
+                        console.error(bind + 'is already in use');
+                        process.exit(1);
+                        break;
+                    default:
+                        throw error;
+                }
+            }
+
+        2 - após isso, chamar uma função do servidor
+        server.on('error', onError) 
+        isso abaixo da função de listen
+
+
+Quinto: Iniciando o Debug
+    1 - crie a função onListening() ou de sua preferência
+                function onListening(){
+                    const addr = server.address();
+                    const bind = typeof addr === 'string' ? 'pipe' + addr :   'pipe' + addr.port;
+                    debug('listening on ' + bind)
+                }
+    
+    2- chame essa função abaixo do server.on
+        server.on('listening', onListening)
+
+Sexto: separando servidor 
+    1 - Dica: não é bom trabalhar com servidor, rotas, api tudo no mesmo arquivo. Sendo assim, melhor que trabalhe com eles de forma separada para uma melhor organização e uma fácil manutenção de código 
+        1.1 - crie uma pasta chamada "bin"
+        1.2 - crie um arquivo dentro dessa pasta chamado de "server.js" e esse será o nosso servidor 
+    Sendo assim, todas as funções de servidor e gerenciamento de erros vão ficar nessa pasta
+
+    2 - crie uma pasta src ou de sua preferencia e crie um arquivo chamado app.js
+        2.1 - dentro do app.js, vão ficar todas as aplicações qeu envolvem a aplicação
+        (olhar o passo a passo dentro do arquivo)
+
+    3 - feito essa separação, pode excluir o server.js da raiz do projeto, já tendo separado as aplicações, de nada mais servirá
+        ! ATENÇÃO ! É o server.js da raiz, não o que está dentro da pasta "bin"
