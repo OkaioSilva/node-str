@@ -108,3 +108,77 @@ Sexto: separando servidor
 
     3 - feito essa separação, pode excluir o server.js da raiz do projeto, já tendo separado as aplicações, de nada mais servirá
         ! ATENÇÃO ! É o server.js da raiz, não o que está dentro da pasta "bin"
+
+Sétimo: configurando o npm start
+    1 - no package.json, na parte de scripts, estará assim:
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1"
+        }
+
+        você só precisa mudar para que fique assim: 
+
+        "scripts": {
+            ""start": "node ./bin/server.js"
+        }
+
+        Pronto, agora quando der um npm start, sua aplicação irá rodar
+
+Oitavo: Nodemon
+    npm install nodemon --save-dev
+    Por que o -dev ?
+    porque ficará somente como uma dependencia de desenvolvimento, não subirá para produção 
+
+
+Décimo: CRUD REST
+    1 - criando novas rotas no app.js
+     a primeira será ".post":
+        São vários métodos usados, porém, os mais usado são:  get, post, put e delete
+        * get - obter informações
+        * post - enviar informações
+        * put - atualizar
+        * delete - deletar informações
+        Outro ponto importante é que posso ter a mesma rota para dois métodos, uma para get e outra para post
+        sendo: 
+            1 - const route = router.get('/', (req, res, next)=>{
+                     res.status(200).send({
+                        title: "Node Store API",
+                        version: "0.0.1"
+                    })
+                })
+                app.use('/', route)
+
+            2 - const create = router.post('/', (req, res, next)=>{
+                     res.status(200).send(req.body)
+                })
+                organizado lá em baixo com as outras app.use
+                app.use('/products', create);
+
+        Observação:
+        status:
+        200 - ok
+        201 - created
+        400 - error
+        401 - não autenticado
+        403 - acesso negado
+        500 - internal server error ( não jogamos esse, qualquer erro que der na aplicção, ele vai jogar esse status)
+
+
+    2 - body parser ( agora com o express não precisa mais instalar o body-parser):
+        1 - acima das rotas criadas:
+                app.use(express.urlencoded({extended:true}))
+                app.use(express.json())
+
+
+    3 - rota put:
+        1 - vou realizar um put em um determinado id
+
+        como faço para recuperar um determinado parametro ?
+            const put = router.put('/:id', (req, res, next)=>{
+                const id = req.params.id
+                res.status(201).send({id: id, item: req.body})
+             })
+
+    4 - delete
+        const del = router.delete('/', (req, res, next)=>{
+        res.status(200).send(req.body)
+    })
