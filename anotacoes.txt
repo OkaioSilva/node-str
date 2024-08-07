@@ -182,3 +182,29 @@ Décimo: CRUD REST
         const del = router.delete('/', (req, res, next)=>{
         res.status(200).send(req.body)
     })
+
+
+    Déc. Primeiro: Separando as rotas   
+        - Para ser mais organizado, vamos separar as rotas, tirando-as do "app.js"
+            1- crie uma pasta chamada "routes", ou "rotas" dentro da pasta "src"
+            2 - dentro da pasta "router", crie um arquivo chamado "index.js" ou de sua preferência
+            3 - a rota principal que está no " app.js", esta:
+                        const route = router.get('/', (req, res, next)=>{
+                            res.status(200).send({
+                            title: "Node Store API",
+                            version: "0.0.1"
+                            })
+                        })
+                será movida para dentro do "index.js". Atentando-se de importar o express e o express.Router()
+                ficando exatamente como está no arquivo index.js e ao final exportar a contante "router"
+
+            4- Agora, no "app.js", abaixo da criação da aplicação " 2 - crie a aplicação", você vai importar a rota que criou no index:
+                - pode chamar do que quiser!
+                const indexRoutes = require("./routes/index")
+            
+            5 - Ao fazer isso, lmebre-se que lá em baixo, em "app.use", não tem mais o route, como era antes de separar a rota, então, agora tem o "indexRoutes", ou o nome que você deu à variável.
+                app.use('/', indexRoutes)
+
+            
+            6 - Agora, vamos separar as outras rotas restantes. Crie um arquivo chamado "products.js" dentro da pasta routes
+             e copie as rotas de post, put e delete que antes foram feitas no app.js, lembrando de exportar o router também
