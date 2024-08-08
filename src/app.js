@@ -11,6 +11,8 @@ const router = express.Router()
 //11 - conectando ao banco
 mongoose.connect('mongodb+srv://silv4kaio:Ks979690288k@node-store.cga1z.mongodb.net/')
 
+//12 - carregar os models
+const Product = require('./models/product')
 
 // 7 - carregar as Rotas
     //1

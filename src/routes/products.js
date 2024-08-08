@@ -3,7 +3,7 @@
 const express = require('express')
 const router = express.Router()
 //3 - referenciar o controller
-const controller = require('../controllers/profuct-controller')
+const controller = require('../controllers/product-controller')
 
 
 

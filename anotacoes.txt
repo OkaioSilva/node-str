@@ -270,3 +270,41 @@ Déc. Quarto: Models
 
                 2.3:
                 module.exports = mongoose.model('Product/ nome que você queira dar', schema)
+
+
+Déc. quinto: Criando um produto:
+    1 - comece importando o 'Product' que exportou em Models/products.js, no controllers/ product-controller assim como o mongoose, ficando assim:
+            const mongoose = require('mongoose')
+            const Product = mongoose.model('Product')
+    
+    2 - agora vamos instanciar o meu product
+        exports.post = (req, res, next) => {
+            let product = new Product(req.body);
+            product.save().then(()=>{
+                res.status(201).send({
+                    message: "Produto cadastrado com sucesso"
+                })
+            }).catch((e)=>{
+                res.status(400).send({message: "Falha ao cadastra produto", data: e})
+            })
+        }
+
+    3 - carregue o model no app.js
+        const Product = require('./models/product')
+
+    4 - fazendo o teste no postman, vamos receber os erros de validação que colocamos..
+        4.1 - tendo em mente isso, podemos ir no models/product.js  e editar a mensagem que aparece de erro, por exemplo:
+
+             slug:{
+                            type: String,
+                            required: [true, 'O slug é obrigatório']
+                            trim: true,
+                            index: true,
+                            unique: true  tem que ser unico porque não podemos ter 2 produtos com o mesmo slug para buscar
+                        },    
+            Dessa forma, mostrará a mensagem que você colocou. Isso pode ser feito para os demais!
+            
+
+
+Déc. sexto: Listando produtos   
+        1 - em controllers/ product-controller.js       

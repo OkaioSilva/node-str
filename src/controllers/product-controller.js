@@ -1,0 +1,32 @@
+//1 use strict
+'use strict';
+// 3 - importar o Product de models e mongoose
+const mongoose = require('mongoose')
+const Product = mongoose.model('Product')
+
+//2 - colar a rota created aqui e substituir lá em rotas por esse controller
+// exports.post = (req, res, next) => {
+//     res.status(201).send(req.body)
+// }
+// 4 - o código acima mudou e está assim agora:
+exports.post = (req, res, next) => {
+    let product = new Product(req.body);
+    product.save().then(()=>{
+        res.status(201).send({
+            message: "Produto cadastrado com sucesso"
+        })
+    }).catch((e)=>{
+        res.status(400).send({message: "Falha ao cadastra produto", data: e})
+    })
+}
+// Poderá mudar novamente, assim como os códigos abaixo
+exports.put = (req, res, next) => {
+    const id = req.params.id;
+    res.status(201).send({
+        id: id, 
+        item: req.body
+    })
+}
+exports.delete = (req, res, next) => {
+    res.status(200).send(req.body)
+}
