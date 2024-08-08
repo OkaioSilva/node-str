@@ -184,7 +184,7 @@ Décimo: CRUD REST
     })
 
 
-    Déc. Primeiro: Separando as rotas   
+Déc. Primeiro: Separando as rotas   
         - Para ser mais organizado, vamos separar as rotas, tirando-as do "app.js"
             1- crie uma pasta chamada "routes", ou "rotas" dentro da pasta "src"
             2 - dentro da pasta "router", crie um arquivo chamado "index.js" ou de sua preferência
@@ -208,3 +208,16 @@ Décimo: CRUD REST
             
             6 - Agora, vamos separar as outras rotas restantes. Crie um arquivo chamado "products.js" dentro da pasta routes
              e copie as rotas de post, put e delete que antes foram feitas no app.js, lembrando de exportar o router também
+
+
+Déc. Segundo: Controllers
+         1- dentro da pasta "src", crie uma pasta 'controllers' e um arquivo chamado 'product-controller.js'
+         2 - cole a rota principal do created "status(201)' exportando direto:
+                exports.post = (req, res, next) => {
+                    res.status(201).send(req.body)
+                }
+        3- após isso, pode ir no 'products.js' e substituir a parte da arrow function pela referencia do controller:
+                router.post('/', controller.post);
+
+        4 - repita essa ação com o put e o delete
+

@@ -2,25 +2,24 @@
 // 1 - importação
 const express = require('express')
 const router = express.Router()
- 
-// create
-router.post('/', (req, res, next)=>{
-    res.status(201).send(req.body)
-})
+//3 - referenciar o controller
+const controller = require('../controllers/profuct-controller')
 
+
+
+// 2 - rotas
+// create
+// router.post('/', (req, res, next)=>{
+//     res.status(201).send(req.body)
+// }) 
+//mudou para:
+router.post('/', controller.post);
+// assim como put e delete
 // put 
-router.put('/:id', (req, res, next)=>{
-    const id = req.params.id;
-    res.status(201).send({
-        id: id, 
-        item: req.body
-    })
-})
+router.put('/:id', controller.put)
 
 // delete
-router.delete('/', (req, res, next)=>{
-    res.status(200).send(req.body)
-})
+router.delete('/', controller.delete)
 
 // exportação
 module.exports = router;
