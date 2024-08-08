@@ -221,3 +221,52 @@ Déc. Segundo: Controllers
 
         4 - repita essa ação com o put e o delete
 
+
+Déc. terceiro: MongoDB Setup
+        1 - MongoDB.com, faça o download, ou use o mlab do MongoDB criando um banco de dados onListenin
+        2 - criando um bda online, você deve conectar ao vs code
+        3 - copie a URI que o site do mongo oferece pós criação do banco de dados e cole no studio 3t ou aqui no vs code para uma conexão
+        4 - mongoose : que irá permitir a criação de collections através de um Schema. Sendo assim:
+                npm i mongoose --save
+            Diferente do SQLserver que a gente executa uma conexão a cada request na nossa aplicação, aqui a nossa aplicação fica conectada direta no banco
+        5 - vamos instanciar o mongoose e conectar ao MongoDB
+            5.1 - no app.js:
+                const mongoose = require('mongoose')
+            
+            5.2 - conexão com o MongoDB
+                abaixo da aplicação:
+                mongoose.connect('mongodb+srv://silv4kaio:<password>@node-store.cga1z.mongodb.net/')
+                para melhorar a segurança do seu banco de dados com senhas, veja:
+                https://www.youtube.com/watch?v=A8Pk-lkwgaw&t=572s 
+                
+
+Déc. Quarto: Models 
+    Seguindo o padrão MVC (models views controllers):
+        1 - crie uma pasta chamada "models" em src e detro um arquivo chamado product.js
+        2 - No arquivo, iremos definir um Schema... 
+            obs: O NoSql por padrão não tem Schema, ele é um Schemaless, mas o mongoose permite que criemos um Schema para as nossas validações, exemplo: não poderei cadastrar um produto com titulo repetido, etc
+            então, para começar um Schema, precisamos de:
+                2.1:
+                     const mongoose = require("mongoose")
+                     const Schema = mongoose.Schema;
+                2.2:
+                     const schema = new Schema({
+                        aqui vamos compor nosso schema:
+                        Já vem com id por padrão: _id
+                        title:{
+                            type: String,
+                            required: true,
+                            trim: true
+                        },
+                         slug:{
+                            type: String,
+                            required: true,
+                            trim: true,
+                            index: true,
+                            unique: true  tem que ser unico porque não podemos ter 2 produtos com o mesmo slug para buscar
+                        },
+                     })
+                     
+
+                2.3:
+                module.exports = mongoose.model('Product/ nome que você queira dar', schema)

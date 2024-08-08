@@ -1,10 +1,16 @@
 'use strict'
 //1 - importar o express
 const express = require('express')
+//10 - mongoose
+const mongoose = require("mongoose")
 
 //2 - crie a aplicação:
 const app = express()
 const router = express.Router()
+
+//11 - conectando ao banco
+mongoose.connect('mongodb+srv://silv4kaio:Ks979690288k@node-store.cga1z.mongodb.net/')
+
 
 // 7 - carregar as Rotas
     //1
