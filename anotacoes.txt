@@ -307,4 +307,43 @@ Déc. quinto: Criando um produto:
 
 
 Déc. sexto: Listando produtos   
-        1 - em controllers/ product-controller.js       
+        1 - em controllers/ product-controller.js  
+             exports.get = (req, res, next) =>{
+                 Product.find({}).then((data)=>{
+                    res.status(200).send(data)
+                 }).catch((e)=>{
+                     res.status(400).send(e)
+                 })
+             }
+
+        2 - após isso, vamos em rotas e vamos cadastrar uma rota para o get
+            2.1 - feito isso, só conferir se o nodemon estárodando e se não mostrou nenhum erro e conferir no postman também
+        
+        3 - detalhe interessante é que podemos omitir o que não é tão interessante nas infromações, exempo:
+           3.1 - quando olhamos no postman, essas são as informações que obtemos:
+                        [
+                            {
+                                "_id": "66b53082b8c4e9f5958f65c3",
+                                "title": "PC Gamer",
+                                "slug": "pc-gamer",
+                                "description": "PC gamer i9 gtx 4090 34gb RAM",
+                                "price": 8499,
+                                "active": true,
+                                "tags": [
+                                    "informática",
+                                    "Pc",
+                                    "games"
+                                ],
+                                "__v": 0
+                            }
+                        ]
+            3.2 - Fica mais interessante mostrar apenas o title, slug e price, então fazemos assim:
+                - em controllers/product-controller.js na função 'find({})', podemos passar um segundo parametro dizendo o que queremos mostrar:
+                        exports.get = (req, res, next) =>{
+                                Product.find({active: true}, 'title price slug').then((data)=>{
+                                 res.status(200).send(data)
+                            }).catch((e)=>{
+                                res.status(400).send(e)
+                            })
+                        }
+                - Dessa maneira, só iremos trazer os produtos ativos no sistema, o titulo, o preço e o slug
