@@ -33,7 +33,7 @@ exports.getById = (req, res, next) =>{
 // pela tag
 exports.getByTag = (req, res, next) =>{
     Product.find({tags: req.params.tag, active: true}, 'title description price slug tags').then((data)=>{
-     res.status(200).send(data)
+    res.status(200).send(data)
 }).catch((e)=>{
     res.status(400).send(e)
 })
@@ -57,13 +57,47 @@ exports.post = (req, res, next) => {
     })
 }
 // Poderá mudar novamente, assim como os códigos abaixo
+
+// 7 - mudando a atualização:
+// exports.put = (req, res, next) => {
+//     const id = req.params.id;
+//     res.status(201).send({
+//         id: id, 
+//         item: req.body
+//     })
+// }
 exports.put = (req, res, next) => {
-    const id = req.params.id;
-    res.status(201).send({
-        id: id, 
-        item: req.body
-    })
+    Product.findByIdAndUpdate(req.params.id, {
+        $set: {
+            title: req.body.title,
+            description: req.body.description,
+            price: req.body.price,
+            slug: req.body.slug
+        }
+   }).then(()=>{
+        res.status(200).send({
+            message: "Produto atualizado com sucesso!"
+        })
+   }).catch((e)=>{
+        res.status(400).send({
+            message: "Falha ao atualizar produto", 
+            data: e
+        })
+   })
 }
+//8 - mudando o delete:
+// exports.delete = (req, res, next) => {
+//     res.status(200).send(req.body)
+// }
 exports.delete = (req, res, next) => {
-    res.status(200).send(req.body)
+    Product.findOneAndDelete(req.body.id).then(()=>{
+        res.status(200).send({
+            message: "Produto removido com sucesso!"
+        })
+   }).catch((e)=>{
+        res.status(400).send({
+            message: "Falha ao remover produto", 
+            data: e
+        })
+   })
 }

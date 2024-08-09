@@ -271,6 +271,10 @@ Déc. Quarto: Models
                 2.3:
                 module.exports = mongoose.model('Product/ nome que você queira dar', schema)
 
+                   
+        
+
+-----> CRUD:
 
 Déc. quinto: Criando um produto:
     1 - comece importando o 'Product' que exportou em Models/products.js, no controllers/ product-controller assim como o mongoose, ficando assim:
@@ -388,3 +392,83 @@ Déc. sexto: Listando produtos
                             })
                         }
             - Dessa forma, digitando "tags: nome da tag", ele já vai filtrar dentro do nosso próprio array de tags, porque quando definimos o produto, definimos como um array de strings
+
+
+
+Déc. sétimo: Atualizando um produto:
+    - em controllers/product-controller.js, já temos um método put, assim:
+        exports.put = (req, res, next) => {
+            const id = req.params.id;
+            res.status(201).send({
+                 id: id, 
+                item: req.body
+            })
+        }
+    
+    Em que, anteriormete, já estávamos antentos que poderia ser alterado esse código, sendo assim, alterando ele, fica assim:
+        exports.put = (req, res, next) => {
+           Product.findByIdAndUpdate(req.params.id, {
+                $set: {
+                    title: req.body.title,
+                    description: req.body.description,
+                    price: req.body.price
+                }
+           }).then(()=>{
+                res.status(200).send({
+                    message: "Produto atualizado com sucesso!"
+                })
+           }).catch((e)=>{
+                res.status(400).send({
+                    message: "Falha ao atualizar produto", 
+                    data: e
+                })
+           })
+
+        }
+    
+    - explicando o código acima: Há outras formas de atualizar um dado, mas a mais simples é essa. Dito isso, basta chamar a nossa váriavel Product com o método ".findByIdAndUpdate", tendo como parametro o nosso "req.params.id", sendo composto também por um objeto: 
+                $set: {
+                    title: req.body.title,
+                    description: req.body.description,
+                    price: req.body.price
+                }
+    Em que o "$set" vai setar o que veio da requisição para o que vai ser alterado no meu produto, no nosso caso, por hora, title, description e price.
+    Após isso, a nossa verificação se está tudo ok, ou não.
+     - Para conferir, vá ao postman e dê um put com "localhost:3000/products/id do produto", na parte do body, você digita o que você quer alterar, no nosso caso: title, description e price.
+        Assim, por exemplo:
+            {
+                 "title": "Cadeira gamer",
+                 "description": "Cadeira gamer",
+                 "price": "1200"
+            }
+
+
+Déc. oitavo: Excluindo um produto
+    antes:
+        exports.delete = (req, res, next) => {
+            res.status(200).send(req.body)
+         }
+
+    Agora:
+        exports.delete = (req, res, next) => {
+            Product.findOneAndDelete(req.params.id).then(()=>{
+                 res.status(200).send({
+                 message: "Produto removido com sucesso!"
+                    })
+                }).catch((e)=>{
+                    res.status(400).send({
+                    message: "Falha ao remover produto", 
+                     data: e
+                    })
+                })
+            }
+
+    Lembrando que o "findOneAndDelete(req.params.id)", se você não se sentir confortável passando o id pelo url para apagar, você pode fazer da seguinte forma: findOneAndDelete(req.body.id)
+    e digitar no corpo da aplicação, ou em um input, caso tenha programado um.
+        No corpo(postman):
+                {
+                    "id": id do produto que desejar remover
+                }
+        Vale ressaltar que se optar por essa forma "findOneAndDelete(req.params.id)", você precisa mapear o id em routes/products.js
+         na rota de delete -> router.delete('/', controller.delete), ficando assim -> router.delete('/:id', controller.delete)
+        Caso prefira o outro jeito, não precisa mapear esse id, somente passá-lo no body mesmo.
