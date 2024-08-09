@@ -13,11 +13,38 @@ exports.get = (req, res, next)=>{
         res.status(400).send(e)
     })
 }
+// 6 listando um produto:
+// pelo slug
+exports.getBySlug = (req, res, next) =>{
+    Product.findOne({slug: req.params.slug, active: true}, 'title description price slug tags').then((data)=>{
+    res.status(200).send(data)
+}).catch((e)=>{
+    res.status(400).send(e)
+})
+}
+// pelo id
+exports.getById = (req, res, next) =>{
+    Product.findById(req.params.id).then((data)=>{
+    res.status(200).send(data)
+}).catch((e)=>{
+    res.status(400).send(e)
+})
+}
+// pela tag
+exports.getByTag = (req, res, next) =>{
+    Product.find({tags: req.params.tag, active: true}, 'title description price slug tags').then((data)=>{
+     res.status(200).send(data)
+}).catch((e)=>{
+    res.status(400).send(e)
+})
+}
 
-//2 - colar a rota created aqui e substituir lá em rotas por esse controller
+
+//2 - colar a rota created aqui e substituir lá em routes/products.js por esse controller
 // exports.post = (req, res, next) => {
 //     res.status(201).send(req.body)
 // }
+
 // 4 - o código acima mudou e está assim agora:
 exports.post = (req, res, next) => {
     let product = new Product(req.body);

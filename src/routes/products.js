@@ -15,6 +15,7 @@ const controller = require('../controllers/product-controller')
 
 //mudou para:
 router.post('/', controller.post);
+
 // assim como put e delete
 // put 
 router.put('/:id', controller.put)
@@ -25,6 +26,12 @@ router.delete('/', controller.delete)
 //3 - rota get
 router.get('/', controller.get);
 
+// 5 - :slug
+router.get('/:slug', controller.getBySlug);
+//6 - id
+router.get('/admin/:id', controller.getById);
+//6 - tags
+router.get('/tags/:tag', controller.getByTag);
 
-// exportação
+//4 - exportação
 module.exports = router;

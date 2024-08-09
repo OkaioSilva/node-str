@@ -347,3 +347,44 @@ Déc. sexto: Listando produtos
                             })
                         }
                 - Dessa maneira, só iremos trazer os produtos ativos no sistema, o titulo, o preço e o slug
+
+            
+    - listando um produto pelo slug:
+        1 -  Temos um método semelhando ao composta acima, porém, para fazer uma busca pelo o slug
+            exports.getBySlug = (req, res, next) =>{
+                                Product.find({slug: req.params.slug,active: true}, 'title description price slug tags').then((data)=>{
+                                 res.status(200).send(data)
+                            }).catch((e)=>{
+                                res.status(400).send(e)
+                            })
+                        }
+
+        2 - Após fazer isso, lembre-se de atribuir à rota:
+            então, ficando assim em routes/productcs:
+                router.get('/:slug', controller.getBySlug);
+    
+
+    - listando um produto pelo id:
+            exports.getById = (req, res, next) =>{
+                                Product.findById(req.params.id).then((data)=>{
+                                 res.status(200).send(data)
+                            }).catch((e)=>{
+                                res.status(400).send(e)
+                            })
+                        }
+            
+        - Não esquecendo de add a rota:
+                router.get('/:id', controller.getById);
+            Dessa forma, vamos ter um conflito de rotas, sendo elas com o id e o slug. Para evitar esse conflito, vamos fazer assim:
+                router.get('/admin/:id', controller.getById);
+
+
+    - listando um produto pela tag:
+             exports.getByTag = (req, res, next) =>{
+                                Product.find({tags: req.params.tag, active: true}, 'title description price slug tags').then((data)=>{
+                                 res.status(200).send(data)
+                            }).catch((e)=>{
+                                res.status(400).send(e)
+                            })
+                        }
+            - Dessa forma, digitando "tags: nome da tag", ele já vai filtrar dentro do nosso próprio array de tags, porque quando definimos o produto, definimos como um array de strings
