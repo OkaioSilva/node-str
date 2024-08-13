@@ -4,6 +4,9 @@
 const mongoose = require('mongoose')
 const Product = mongoose.model('Product')
 
+// 9 - importanto o fluent-validator
+const ValidationContract = require("../validators/fluent-validator")
+
 // CRUD:
 
 // 5 listando produtos
@@ -48,6 +51,18 @@ exports.getByTag = (req, res, next) =>{
 
 // 4 - o código acima mudou e está assim agora:
 exports.post = (req, res, next) => {
+    // 10 - inicializando as validações do fluent-validator
+    let contract = new ValidationContract();
+    contract.hasMinLen(req.body.title, 3, 'O título deve conter pelo menos 3 caracteres')
+    contract.hasMinLen(req.body.slug, 3, 'O slug deve conter pelo menos 3 caracteres')
+    contract.hasMinLen(req.body.description , 3, 'A descrição deve conter pelo menos 3 caracteres')
+
+        //11 - Se os dados forem inválidos:
+        if(!contract.isValid()){
+            res.status(400).send(contract.errors()).end();
+            return;
+        }
+
     let product = new Product(req.body);
     product.save().then(()=>{
         res.status(201).send({

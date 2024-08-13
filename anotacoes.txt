@@ -37,7 +37,7 @@ Terceiro: criando um servidor web
         server.listen(port);
         console.log("API rodando na porta " + port);
 
-Quarto:  Criar uma função para fazer a API rodar em ua porta disponível
+Quarto:  Criar uma função para fazer a API rodar em uma porta disponível
     1 - função retirada do gerador de código do Express:
             function normalizePort(val){
                 const port = parseInt(val, 10)
@@ -472,3 +472,43 @@ Déc. oitavo: Excluindo um produto
         Vale ressaltar que se optar por essa forma "findOneAndDelete(req.params.id)", você precisa mapear o id em routes/products.js
          na rota de delete -> router.delete('/', controller.delete), ficando assim -> router.delete('/:id', controller.delete)
         Caso prefira o outro jeito, não precisa mapear esse id, somente passá-lo no body mesmo.
+
+
+
+Déc. Nono: Validações 
+        1 - Vamos criar uma espécie de  validação sem que precisemos do mongoose para isso
+            1.1 - dentro da pasta "src", crie uma pasta para essas validações. Chame do que quiser!
+                Eu vou acompanhar o que está sendo passado em aula e chamar de "validators"
+                Dentro desta pasta, crie um arquivo. Seguindo a aula, chamarei de "fluent-validator.js"
+            
+            1.2 - Dentro de "fluent-validator.js", faça as validações que o professor explica no vídeo. Aqui, ficará a explicação do conceito de cada uma.
+                1ª - uma lista de erros " array "
+                2ª - uma função que faz o papel de consultar essa lista de erros caso tenho um erro na memória
+                    - Os métodos:
+                    1º - isRequired - recebo um valor e uma mensagem (value, message) - campo não pode ser menor que 0 ou igual a 0
+                    2ª - hasMinLen - tem um mínimo de caracter
+                    3ª - hasMaxLen - tem um máximo de caracter
+                    4º - isFixedLen - tem um tamanho fixo 
+                    5º - isEmail - vai verificar se é email com isso:
+                        let reg = new RegExp(/^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)
+
+                    6º - Retorno da lista de erros
+                    7º - temos um clear
+                    8º - depois um metodo "isValid" para validar se é válido ou não 
+                    9ª - por fim, temos a exportação da função " ValidationContract "
+
+        2 - Agora, vamos importar esse módulo no nosso 'product-contoller.js"
+            2.1 - Agora, no método 'POST', vamos inicializar as validações
+                let contract = new ValidationContract(); 
+            2.2 - Agor vamos pegar o que veio no request e fazer a validação:
+                 contract.hasMinLen(req.body.title, 3, 'O título deve conter pelo menos 3 caracteres')
+                 contract.hasMinLen(req.body.slug, 3, 'O slug deve conter pelo menos 3 caracteres')
+                 contract.hasMinLen(req.body.description, 3, 'A descrição deve conter pelo menos 3 caracteres')
+            2.3 - agora, vamos verificar se os dados são inválidos:
+                         if(!contract.isValid()){
+                               res.status(400).send(contract.errors()).end();
+                                return;
+                          }
+            Esse contract existe apenas para evitar os inúmeros ifs 
+ 
+     
