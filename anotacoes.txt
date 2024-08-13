@@ -510,5 +510,36 @@ Déc. Nono: Validações
                                 return;
                           }
             Esse contract existe apenas para evitar os inúmeros ifs 
+
+
+
+Repositório  pattern: 
+    - Ele isola todo acesso dados da sua aplicação, dos seus controllers, no caso. 
+Como ?
+    - Cria uma function que vai ao banco ou uma fonte de dados e retorna pra gente tudo o que precisamos. Eu delego a responsabilidade de acesso a dados de um Repositório
+    Ex: preciso da lista de produtos. Onde ele vai buscar isso, não sei. Isso é um problema dele e o repositório é responsável por obter a lista de produtos
+    Isso facilita a gente em diversas frentes, umas delas é se você tem uma mudança constante na estrutura de dados da sua aplicação, ou no armazenamento de dados
+
+Dito isso, vamos lá...
+
+Vigéssimo: repositorios 
+        1 - criem uma pasta para o Repositório pattern
+        2 - dentro dessa pasta, crie um arquivo .js, eu vou seguir a aula e chamar de "product-repository"
+        3 - vamos importar o mongoose e o model de Product
+        4 - faremos assim: 
+            4.1 -  exports.get = ()=>{
+                 Product.find({active: true}, 'title price slug')
+            }
+            4.2 -agora em controllers/product-controller :
+            vamos importar o repositorios:
+                4.2.1 - const repository = require('../repositories/product-repository) e, a parte que copiou do exports.get " Product.find({active: true}, 'title price slug')" você substitui poelo nome da variavél que criou, pois ela vai buscar a referencia lá no repositorio, meu exemplo fica:
+
+                exports.get = (req, res, next) =>{
+                    repository.get().then((data)=>{
+                        res.status(200).send(data)
+                     }).catch((e)=>{
+                         res.status(400).send(e)
+                    })
+                }
  
-     
+        5 - Após fazer isso com o primeiro método .get, vamos fazer isso com os outros ( getBySlug, getById e getByTag)
