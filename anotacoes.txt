@@ -599,3 +599,75 @@ Vig. Primeiro: Async/Await
                     }  
 
             Feito isso com o primeiro, vamos fazer com os demais.
+
+
+Vig. Segundo: Revisitando os models: Customer
+    1 - em models crie um arquivo para os clientes, chamerei de "customer" como na aula
+        Nesse arquivo, teremos um novo model, um novo Schema com nome, email e senha:
+        "use strict";
+                // 1 - carregando o mongoose e o Schema
+                const mongoose = require("mongoose");
+                const Schema = mongoose.Schema;
+
+                // 2 - schema
+                const schema = new Schema({
+                    name:{
+                        type: String,
+                        required: true
+                    }, 
+                    email:{
+                        type: String,
+                        required: true
+                    }, 
+                    password:{
+                        type: String,
+                        required: true
+                    }, 
+
+                })
+
+                module.exports = mongoose.model('Customer', schema)
+
+            - criado isso, não podemos esquecer de carregar esse nosso model no app.js
+
+    2 - order 
+        Para economizar tempo, vamos copiar os arquivos do costumer, para ser mais simples e vamos mudar algumas coisas 
+                            const schema = new Schema({
+                            customer:{
+                                type: mongoose.Schema.Types.ObjectId,
+                                ref: 'Customer'
+                            },
+                            number:{
+                                type: String,
+                                required: true
+                            },
+                            createDate:{
+                                type: Date,
+                                required: true,
+                                default: Date.now
+                            },
+                            status:{
+                                type: String,
+                                required: true,
+                                enum: ['created', 'done'],
+                                default: 'created'
+                            }, 
+                            items:[{
+                                quantity:{
+                                    type: Number,
+                                    required: true,
+                                    default: 1
+                                },
+                                price:{
+                                    type: Number,
+                                    required: true
+                                },
+                                product:{
+                                    type: mongoose.Schema.Types.ObjectId,
+                                    ref: 'Product'
+                                }
+                            }] 
+
+                        })
+
+    - Após isso, vamos importar no app também 

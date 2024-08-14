@@ -13,6 +13,9 @@ mongoose.connect('mongodb+srv://silv4kaio:Ks979690288k@node-store.cga1z.mongodb.
 
 //12 - carregar os models
 const Product = require('./models/product')
+const Customer = require('./models/customer')
+const Order = require('./models/order')
+
 
 // 7 - carregar as Rotas
     //1
