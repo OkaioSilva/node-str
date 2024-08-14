@@ -519,6 +519,8 @@ Como ?
     - Cria uma function que vai ao banco ou uma fonte de dados e retorna pra gente tudo o que precisamos. Eu delego a responsabilidade de acesso a dados de um Repositório
     Ex: preciso da lista de produtos. Onde ele vai buscar isso, não sei. Isso é um problema dele e o repositório é responsável por obter a lista de produtos
     Isso facilita a gente em diversas frentes, umas delas é se você tem uma mudança constante na estrutura de dados da sua aplicação, ou no armazenamento de dados
+    As vezes você está trabalhando em um aplicação pequena, uma aplicação que faz tudo e, a medida em que cresceu, você precisa segmentar em serviços, então, agora, não vou mais ler o produto do meu SQLserver ou do meu mongoDb, eu vou ler meu produto de um outro serviço, sendo assim, vou ter que fazer um http request, etc. 
+    Então, se você trabalha com repositório pattern, não importa onde está a sua lista de produtos, onde estão armazenados, como você faz para armazenar, nada disso importa. O que importa é que eu passo um produto, você salva ele no banco e que peço uma lista de produtos e você me retorna 
 
 Dito isso, vamos lá...
 
@@ -528,7 +530,7 @@ Vigéssimo: repositorios
         3 - vamos importar o mongoose e o model de Product
         4 - faremos assim: 
             4.1 -  exports.get = ()=>{
-                 Product.find({active: true}, 'title price slug')
+                return Product.find({active: true}, 'title price slug')
             }
             4.2 -agora em controllers/product-controller :
             vamos importar o repositorios:
@@ -543,3 +545,57 @@ Vigéssimo: repositorios
                 }
  
         5 - Após fazer isso com o primeiro método .get, vamos fazer isso com os outros ( getBySlug, getById e getByTag)
+
+
+Vig. Primeiro: Async/Await
+       - Em controllers/product-controller, temos as promisses, então, se você apenas der um " repository.get();" receberemos um undefined, pois não temos as informações finais ainda, o repository.get retorna pra gente uma promeça. Ele faz assim: Eu vou executar aqui e quando estiver pronto, eu te chamo... Desse modo, temos, no fim o then e o catch para tratar isso 
+       
+       então, o que acontece... Muitas vezes, você vai querer você vai querer executar um método assincrono para depois prosseguir com sua requisição. Por exemplo: querer ver se o usuário já está cadastrado na base, se ele estiver, você dá um return, se não estiver você processegue com a requisição
+       E ai, você tem que encadear promisses
+
+       vamos lá: vamos tranformar o nossso método get em Async/Await
+        em repositories/product-repository.js
+            vamos mudar isso:   
+            exports.get = ()=>{
+                return Product.find({
+                    active: true}, 
+                    'title price slug')
+            }
+            Para:
+            exports.get = async()=>{
+                const res = await Product.find({
+                    active: true}, 
+                    'title price slug')
+                    return res
+            }
+
+        - Mas se deixar assim, vamos ter um problema, pois ele vai chamar then lá, os métodos para formatar os dados, retornar o JSON aqui pra gente para podermos retornar para tela e daí, obviamente, teremos que tratar isso dentro de um try/catch porque ele não vai passar pelo método Errors que a gente tinha antes, então, vamos te que mudar o código lá no nosso controller (controllers/product-controller)
+         - Se a gente colocou Async/Await no nosso repository, temos que colocar no nosso controller também:
+                Antes:
+                    exports.get = (req, res, next)=>{
+                        repository.get().then((data)=>{
+                            res.status(200).send(data)
+                        }).catch((e)=>{
+                            res.status(400).send(e)
+                        })
+                    }
+
+                Depois:
+                     exports.get = async(req, res, next)=>{
+                        let data = await repository.get()
+                            res.status(200).send(data)
+                    }   
+
+            - Agora, é interessante tratarmos os erros, já que não temos mais, então é legal tratarmos isso dentro de um try/catch:
+                     exports.get = async(req, res, next)=>{
+                        try{
+                        let data = await repository.get()
+                        res.status(200).send(data)
+                        } catch(e){
+                            res.status(500).send({
+                                message: 'Falha ao processar sua requisição'
+                            })
+                        }
+                    }  
+
+            Feito isso com o primeiro, vamos fazer com os demais.
