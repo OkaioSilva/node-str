@@ -1,8 +1,10 @@
 //1 use strict
 "use strict";
 // 3 - importar o Product de models e mongoose
-const mongoose = require("mongoose");
-const Product = mongoose.model("Product");
+
+// const mongoose = require("mongoose");
+// const Product = mongoose.model("Product"); comentando pois não precisamos mais deles, uma vez que já estão no repositories
+
 // 9 - importanto o fluent-validator
 const ValidationContract = require("../validators/fluent-validator");
 //10 - repository
