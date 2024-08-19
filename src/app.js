@@ -24,6 +24,8 @@ const Order = require('./models/order')
     const productsRoutes = require('./routes/products')
     //13
     const customerRoutes = require('./routes/customer-route')
+    //14
+    const orderRoutes = require('./routes/order-route')
 
     
 // 6 - body parser express
@@ -63,6 +65,7 @@ app.use(express.json())
     app.use('/', indexRoutes);
     app.use('/products', productsRoutes);
     app.use('/customers', customerRoutes);
+    app.use('/orders', orderRoutes);
 
 
 

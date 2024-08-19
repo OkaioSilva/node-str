@@ -742,3 +742,83 @@ Vig. terceiro: Revisitando os controllers: Customer
                     app.use("/customers", customerRoutes)
 
 
+vig. quarto:  Revisitando os Controllers: Order
+        1 - Vamos começar pelo repository. Vamos criar um order-repository.js
+        2 - dentro desse  arquivo vamos ter os módulos e os métodos get e create:
+                'use strict'
+                //1 - carregando módulos
+                const mongoose = require('mongoose')
+                const Order = mongoose.model('Order')
+
+
+                exports.get = async()=>{
+                    const res = await Order.find({})
+                    return res
+                }
+
+                exports.create = async(data)=>{
+                    let order = new Order(data);
+                    await order.save()
+                }
+
+            - no get, por enquanto, não teremos nenhum filtro para as buscas
+        
+        3 - Agora, vamos criar um order-controller em controllers
+            dentro desse arquivo, vamos ter os módulos e o método get
+
+            "use strict";
+
+            const ValidationContract = require("../validators/fluent-validator");
+            const repository = require("../repositories/order-repository");
+
+            //2 - exportando o post
+            //post
+            exports.post = async (req, res, next) => {
+                // 3 - inicializando as validações do fluent-validator
+                
+                // depois fazer as validações de acordo com o model order!!!
+
+                //4 - Se os dados forem inválidos:
+                if (!contract.isValid()) {
+                    res.status(400).send(contract.errors()).end();
+                    return;
+                }
+                // 5 - try/catch
+                try {
+                    await repository.create(req.body);
+                    res.status(201).send({message: "Pedido cadastrado com sucesso",
+                });
+                } catch (e) {
+                    res.status(500).send({message: "Falha ao cadastrar pedido" + e,});
+                }
+            };
+
+
+        !!!! -
+            Na parte do "req.body" do código, precisamos do número do pedido, não iremos receber, por isso, temos que gerá-lo aqui
+            Nesse caso, vamos fazer um guid para que possamos gerar um número para esse pedido. 
+            -- Há um pacote no node que é realmente o guid:
+                    npm install guid --save
+            - Feito a instalação do guid, vamos importá-lo 
+                const guid = require('guid');
+            - Agora, vamos substituir o "req.body", por:
+                    ({
+                      customer: req.body.customer,
+                      number: guid.raw().substring(0,6),
+                      items: req.body.items
+                    })
+                        
+                - em "number = guid.raw().substring(0,6)" : Isso vai gerar um guid pra mim e vou pegar somente os 6 primeiros caracteres
+
+        4 - nas rotas, agora temos um novo arquivo chamado de order-route.js
+            Vamos copiar os códigos do customer-route e colar no nosso order-route, alterando somente o controller.
+            - Após isso, vamos adicionar o método get aqui e no nosso order-controller
+
+        5 - testado no postman, deu tudo certo, porém, não está tão interessante porque não trouxe a informação do produto nem do cliente.
+            5.1 - existe uma função chamada "populate()" que faz popular esses campos trazendo essas informações para gente.
+            5.2 - vá em order-repository e adicione o popolate() no método get:
+                    exports.get = async()=>{
+                    const res = await Order.find({}, 'number status customer items').populate('customer', 'name').populate('items.product', 'title')
+                    return res
+                }
+
