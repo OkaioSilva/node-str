@@ -875,3 +875,68 @@ Vig. Sétimo: Enviando E-mail de Boas Vindas
         Usei o mailerSend para enviar as mensagens no email.
         - Na aula, o professor usa o sendGrid, mas não consegui acessa-lo, então, busquei outros meios
         - Na aula, ele separa esse serviço em uma pasta e arquivo separado exportando, ainda não fiz, mas farei em breve essa separação de serviços
+        Na prática, ficou assim:
+
+        // mailersend modulos 
+        const Recipient = require('mailersend').Recipient
+        const EmailParams = require('mailersend').EmailParams
+        const MailerSend = require('mailersend').MailerSend
+        const Sender = require('mailersend').Sender
+
+        Ai dentro do try no método "POST", coloquei as configurações de envio de email:
+        
+        //send email
+        const mailerSendConfig = {apiKey: config.API_KEY}
+        
+        const mailerSend = new MailerSend(mailerSendConfig);
+        
+        const recipients = [new Recipient(req.body.email, req.body.name)];
+
+        const sentFrom = new Sender('MS_JQRMc8@trial-yzkq3407wv0ld796.mlsender.net', 'Kaio')
+
+        const emailParams = new EmailParams()
+        .setFrom(sentFrom)
+        .setTo(recipients)
+        .setSubject('Bem vindo ao node Store')
+        .setHtml(global.EMAIL_TMPL.replace('{0}', req.body.name))
+        try{
+            await mailerSend.email.send(emailParams)
+        
+        }catch(e){
+            console.log(e)
+        }
+
+        - Lembrando que tenho que separar isso em uma pasta e arquivo e exportar
+
+    ATUALIZAÇÕES:
+        - Consegui separar o serviço de envio de email com o nodemailer!
+        1 - instalei o pacote do nodemailer: npm install nodemailer
+        2 - criei uma pasta de services e um arquivo "email-services.js"
+        3 - fiz a configuração do nodemailer:
+
+            const nodeMailer = require('nodemailer')
+
+            const transporter = nodeMailer.createTransport({
+                host: 'smtp.mailersend.net',
+                port: 587,
+                auth:{
+                    user:'MS_JQRMc8@trial-yzkq3407wv0ld796.mlsender.net',
+                    pass: 'D3pc8PSuEhrjZBBo'
+                }
+            })
+            const sendEmail = (to, subject, body ) =>{
+                transporter.sendMail({
+                    from: '"Node Store"<MS_JQRMc8@trial-yzkq3407wv0ld796.mlsender.net>',
+                    replyTo:'Souza_kaio@hotmail.com',
+                    to,
+                    subject,
+                    html: body
+                })
+            }
+            module.exports = sendEmail  
+
+        4 - Na parte de host, port e auth, usei o serviço do mailerSend
+        5 - exportei a função sendEmail.
+        6 - em customer-controller.js, importei essa função e usei dentro do try do método POST
+
+        

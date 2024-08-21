@@ -8,12 +8,7 @@ const md5 = require('md5')
 
 const config = require("../config")
 
-// mailersend
-const Recipient = require('mailersend').Recipient
-const EmailParams = require('mailersend').EmailParams
-const MailerSend = require('mailersend').MailerSend
-const Sender = require('mailersend').Sender
-
+const sendEmail = require('../services/email-services')
 
 
 async(password)=>{
@@ -50,25 +45,11 @@ exports.post = async (req, res, next) => {
         });
 
         //send email
-        const mailerSendConfig = {apiKey: config.API_KEY}
-        
-        const mailerSend = new MailerSend(mailerSendConfig);
-        
-        const recipients = [new Recipient(req.body.email, req.body.name)];
-
-        const sentFrom = new Sender('MS_JQRMc8@trial-yzkq3407wv0ld796.mlsender.net', 'Kaio')
-
-        const emailParams = new EmailParams()
-        .setFrom(sentFrom)
-        .setTo(recipients)
-        .setSubject('Bem vindo ao node Store')
-        .setHtml(global.EMAIL_TMPL.replace('{0}', req.body.name))
-        try{
-            await mailerSend.email.send(emailParams)
-        
-        }catch(e){
-            console.log(e)
-        }
+        sendEmail(
+            req.body.email,
+            "Bem vindo ao Node Store",
+            global.EMAIL_TMPL.replace('{0}', req.body.name)
+        )
 
         res.status(201).send({message: "Cliente cadastrado com sucesso",
     });
