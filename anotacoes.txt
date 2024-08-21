@@ -822,3 +822,56 @@ vig. quarto:  Revisitando os Controllers: Order
                     return res
                 }
 
+Vig. Quinto: Arquivo de configurações
+    - Se notarmos, nós não salvamos a senha encripitada e nossa conexão com o mongoose está também avulso, não está passando por uma string de conexão nem um arquivo de configuração;
+    Além disso, vamos precisar de configuração para envio d emails e várias outras situações.
+     Vamos lá então:
+        1- Em src, crie um arquivo para essas configurações
+        2- no arquivo de config. teremos nossas configurações de conexão ao banco e uma hash de senha;
+            module.exports = {
+            connectionString: 'mongodb+srv://silv4kaio:<password>@node-store.cga1z.mongodb.net/',
+            sendGridKey: '',
+            containerConnectionString: ''
+        }
+
+        - Na aula, o professor usa uma Salt key global, não explicou como fez, nem como gerou, mas temos uma ideia usando o bcrypt com a função salt:
+            https://medium.com/@amirakhaled2027/understanding-salt-in-node-js-a-comprehensive-guide-to-secure-password-hashing-54cc60890b4a
+
+        3 - vamos importar nossa conexão ao banco no nosso app
+
+Vig. Sexto: encripitando senhas:
+    - Na aula 31, o professor usou uma KEY_SALT, como mencionei acima, não explicou como faz, porém, como no link que pesquisei, percebi que o bcrypt faz essa função de gerar um  senha de salt. Logo, substitui por esse método, fazendo um salt e unindo isso a um hash da senha. Inclui isso no custumer-controller.js:
+        1 - importei o bcrypt
+        2- instalei o pacote do md5 e importei também.
+        3 - bcrypt e salt de senha:
+            
+                const salt = await bcrypt.genSalt(10);
+                const hashPassword = await bcrypt.hash(req.body.password, salt);
+               
+            3.1 - ali vai puxar a senha que o usuário cadastrar e vai fazer o hash dessa senha e concatenar com o salt    
+
+        4 - no método "POST", substitui lá no try, o método create(req.body), para:
+            try {
+                await repository.create({
+                    name: req.body.name,
+                    email: req.body.email,
+                    password: md5(hashPassword)
+                });
+                res.status(201).send({message: "Cliente cadastrado com sucesso",
+            });
+            }
+
+            - Feito isso, veja se não quebrou nada no nodemon e faça um post no postman para testar
+
+            -- Consegui criar uma api key e usei o método dá aula. MAS o que foi escrito acima funciona muito bem também, cabe a pessoa decidir qual método usar. No md5(senha do usuário + a nossa salt key)
+
+Vig. Sétimo: Enviando E-mail de Boas Vindas
+    -há duas formas de você enviar um email:
+        1- Através de um SMTP: gmail, hotmail, ou qualquer outro email que permita isso
+        2- Através de um serviço, como um sendgrid, por exemplo
+
+        Obs: Por que é ruim você fazer um envio por um SMTP pessoa? Se algumas pessoas começarem a marcar a sua mensagem como span, já era. A probabilidade de um gmail mandando 30 a 40 emails por minuto ser bloqueado é muito grande 
+
+        Usei o mailerSend para enviar as mensagens no email.
+        - Na aula, o professor usa o sendGrid, mas não consegui acessa-lo, então, busquei outros meios
+        - Na aula, ele separa esse serviço em uma pasta e arquivo separado exportando, ainda não fiz, mas farei em breve essa separação de serviços

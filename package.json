@@ -10,10 +10,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "debug": "^4.3.6",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "guid": "^0.0.12",
     "http": "^0.0.1-security",
+    "mailersend": "^2.2.0",
+    "md5": "^2.3.0",
     "mongoose": "^8.5.2"
   },
   "devDependencies": {
