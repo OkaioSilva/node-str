@@ -11,7 +11,7 @@ const app = express()
 const router = express.Router()
 
 //11 - conectando ao banco
-// mongoose.connect('mongodb+srv://silv4kaio:Ks979690288k@node-store.cga1z.mongodb.net/')
+// mongoose.connect('mongodb+srv://<user>:<password>@node-store.cga1z.mongodb.net/')
 // 14 vamos chamar nossa config no mongoose.connect
 mongoose.connect(config.connectionString)
 

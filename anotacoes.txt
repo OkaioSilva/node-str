@@ -939,4 +939,49 @@ Vig. Sétimo: Enviando E-mail de Boas Vindas
         5 - exportei a função sendEmail.
         6 - em customer-controller.js, importei essa função e usei dentro do try do método POST
 
-        
+
+
+
+Vig. Oitavo: Upload de imagem do produto
+    - No nosso produto, vamos ter uma imagem
+   1 - vamos em models/product, e adicionar uma imagem
+        -- após "tags", teremos "image"
+        image:{
+            type: string,
+            required: true.
+            trim: true
+        }
+       - Não é interessante armazenarmos imagens no banco, então, o que faremos ?
+        -Vamos armazenar só o caminho dessa imagem, por isso o type é string, vamos pegar e transformar nossa imagem em base64
+        Importante para pesquisar depois = ngImgCrop 
+         No curso, o professor está ensinando como salvar essa imagem em um blob do azure, porque a api inteira irá para o azure  
+    2 - vamos baixar o azure storage explorer, com esse cara, vamos conseguir explorar os nossos storages e vamos fazer um upload 
+    3 - vamos no portal da azure
+        3.1 - entrar na nossa conta e depois ir em storage
+        3.2 - vamos criar um novo e faz como o professor ensinou na aula 33
+    
+    4 - vamos em chaves de acesse, copia sua connection string e cola no containerConnectionString
+
+    5 - Envio de img:
+        5.1 - no product-controller, no nosso método "POST", vamos receber a imagem(base64), vamos ter que salvar ela no azure para gerar a url dela e salvar essa url no banco
+        5.2 - npm install azure-storage --save e importa ele no product-controller
+        5.3 - no Try do nosso método "POST", vamos fazer a config
+            - blob services
+            const blobSvc = azure.createBlobService(config.containerConnectionString)
+
+            let filename = guid.raw().toString() + '.jpg'; -> nome do arquivo randomico 
+            let rawdata = req.body.image; 
+            let matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); -> toda vez que convertemos uma img em basee64, ela vem com um cabeçalho dizendo que está em base64, usamos esse código para remover  os itens indesejaveis 
+            let type = matches[1]; -> tipo da image
+            let buffer = new Buffer(matches[2], 'base64'); -> novo buffer da img pra enviar
+
+            // salva a imagem   
+            await blobSvc.createBlockBlobFromText('product-images', filename, buffer, {
+                contentType: type
+            }), function(error, result, response){
+                if(error){
+                    filename = 'default-product.png'
+                }
+            }
+
+

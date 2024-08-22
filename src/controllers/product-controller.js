@@ -10,6 +10,11 @@ const ValidationContract = require("../validators/fluent-validator");
 //10 - repository
 const repository = require("../repositories/product-repository");
 
+//14 - azure-storage
+const azure = require('azure-storage')
+const config = require('../config');
+const guid = require("guid");
+
 // CRUD:
 
 // 5 listando produtos
@@ -224,6 +229,24 @@ exports.put = async(req, res, next) => {
 
     await repository.update(req.params.id, req.body);
     try{
+      //15 - azure
+      const blobSvc = azure.createBlobService(config.containerConnectionString)
+
+      let filename = guid.raw().toString() + '.jpg';
+      let rawdata = req.body.image;
+      let matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      let type = matches[1];
+      let buffer = new Buffer.from(matches[2], 'base64');
+
+      
+      // salva a imagem   
+      await blobSvc.createBlockBlobFromText('product-images', filename, buffer, {
+        contentType: type
+      }), function(error, result, response){
+        if(error){
+            filename = 'default-product.png'
+        }
+      }
       res.status(200).send({
         message: "Produto atualizado com sucesso!",
       });

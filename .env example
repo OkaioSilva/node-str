@@ -1,0 +1,15 @@
+SALT = 
+
+CONNECTION_MONGO = 
+API_KEY = 
+CONTAINERCONNECTION = 
+
+
+// send email
+
+EM_HOST= 
+EM_PORT= 
+EM_USER= 
+EM_PASS= 
+
+EM_FROM = 
