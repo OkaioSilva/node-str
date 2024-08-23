@@ -213,11 +213,37 @@ exports.post = async (req, res, next) => {
   }
 
   try {
-    await repository.create(req.body);
+     //15 - azure
+    const blobSvc = azure.createBlobService(config.containerConnectionString)
+
+    let filename = guid.raw().toString() + '.jpg';
+    let rawdata = req.body.image;
+    let matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    let type = matches[1];
+    let buffer = new Buffer.from(matches[2], 'base64');
+
+    // salva a imagem   
+    blobSvc.createBlockBlobFromText('product-images', filename, buffer, {
+      contentType: type
+    }, function(error, result, response){
+      if(error){
+          filename = 'default-product.png'
+      }
+    })
+    await repository.create({
+      title: req.body.title,
+      slug: req.body.slug,
+      description: req.body.description ,
+      price: req.body.price,
+      active: true,
+      tags: req.body.tags,
+      image: 'https://nodeestr.blob.core.windows.net/product-images/node.webp' + filename
+    })
     res.status(201).send({
       message: "Produto cadastrado com sucesso",
     });
   } catch (e) {
+    console.log(e)
     res.status(500).send({
       message: "Falha ao processar sua requisição" + e,
     });
@@ -228,25 +254,8 @@ exports.post = async (req, res, next) => {
 exports.put = async(req, res, next) => {
 
     await repository.update(req.params.id, req.body);
-    try{
-      //15 - azure
-      const blobSvc = azure.createBlobService(config.containerConnectionString)
-
-      let filename = guid.raw().toString() + '.jpg';
-      let rawdata = req.body.image;
-      let matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      let type = matches[1];
-      let buffer = new Buffer.from(matches[2], 'base64');
-
+    try{      
       
-      // salva a imagem   
-      await blobSvc.createBlockBlobFromText('product-images', filename, buffer, {
-        contentType: type
-      }), function(error, result, response){
-        if(error){
-            filename = 'default-product.png'
-        }
-      }
       res.status(200).send({
         message: "Produto atualizado com sucesso!",
       });
