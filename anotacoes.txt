@@ -973,7 +973,7 @@ Vig. Oitavo: Upload de imagem do produto
             let rawdata = req.body.image; 
             let matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/); -> toda vez que convertemos uma img em basee64, ela vem com um cabeçalho dizendo que está em base64, usamos esse código para remover  os itens indesejaveis 
             let type = matches[1]; -> tipo da image
-            let buffer = new Buffer(matches[2], 'base64'); -> novo buffer da img pra enviar
+            let buffer = new Buffer.from(matches[2], 'base64'); -> novo buffer da img pra enviar
 
             // salva a imagem   
             await blobSvc.createBlockBlobFromText('product-images', filename, buffer, {
@@ -985,3 +985,91 @@ Vig. Oitavo: Upload de imagem do produto
             }
 
 
+    - Após isso, compor no "repository.create({
+        title: req.body.title,
+        slug: req.body.slug,
+        description: req.body.description,
+        price: req.body.price,
+        active: true,
+        tags: req.body.tags,
+        images: 'Sua url de img no blob do azure' + filename 
+    })"
+
+
+Vig. Nono: Autenticação
+   Vamos utilizar a autenticação via token, utilizando JWT, que é no formato JSON
+    Começando instalando esse pacote:
+    npm install jsonwebtoken --save
+
+    Como vamos utilizar esse serviço em diversos locais, vamos criar uma pasta para ele:
+        1 - no curso, o professor determina o nome como AUTH, dentro da pasta Services
+        dentro do arquivo "auth-services.js": 
+        // importar o jwt
+        const jwt = require('jsonwebtoken')
+
+        exports.generateToken = async(data) =>{
+            // aqui vamos gerar os dados
+            // Vamos passar os dados que vamos imputar dentro do token, no caso o email
+            return jwt.sign(data, global.SALT_KEY, {expiresIn: '1d'})
+
+            // e retornamos o json jwt, data, salt_key e os dias para expirar o token
+        }
+        
+        exports.decodeToken = async(token)=>{
+            // recebemos um token e tentamos verificar o token
+            var data =  jwt.verify(token, global.SALT_KEY);
+            return data; 
+        }
+
+        exports.authorize = function(req, res, next){
+        // essa função vai servir como interceptador, então todas as rotas que quisermos banir, bloquear do usuário, vamos utilizar essa função
+
+        let token = req.body.token || req.query.token || req.headers['x-access-token']
+        // primeira coisa: vai ver no corpo, depois olha na query, depois no headers
+
+
+        if(!token){
+            res.status(401).json({
+                message: 'Acesso restrito'
+            })
+        } else{
+            jwt.verify(token, global.SALT_KEY, function(error, decoded){
+                if(error){
+                    res.status(401).json({
+                        message: 'Token inválido'
+                    })
+                } else{
+                    next();
+                }
+            })
+        }
+    }
+
+      2 - Feito isso, o primeiro lugar que vamos usar esse cara é dentro das rotas
+        2.1 - utilizando o authService na rota post
+            router.post('/', authService.authorize ,controller.post);
+        2.2 - agora, tentando no postman, receberei a mensagem de "acesso restrito" - se der isso, quer dizer que deu certo, até então
+
+      3 - temos 3 meios de passar um token pra esse cara:
+        1 - via queryString:  
+                    localhost:3000/products?toekn=MEUTOKEN
+
+        2 - ir no headers (postman)
+            adicionar o "x-access-token" e por o meu token
+
+        3 - ou ir no body e colocar o token:
+        {
+            "token": "MEUTOKEN"
+        }
+
+
+    -- Vamos seguir o professor e passar pelo headers;
+
+    4 - Agora, precisamos fazer a autenticação do usuário
+        4.1 - criar um método no customer-repository:
+            exports.authenticate = async(data) =>{
+                const res = await Customer.find({
+                    email: data.email, password: data.password
+                })
+                return res
+            }

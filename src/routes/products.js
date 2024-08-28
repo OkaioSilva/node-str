@@ -5,6 +5,9 @@ const router = express.Router()
 //3 - referenciar o controller
 const controller = require('../controllers/product-controller')
 
+// 7 - puxar o auth-service
+const authService = require("../services/auth-services")
+
 
 
 // 2 - rotas
@@ -14,14 +17,19 @@ const controller = require('../controllers/product-controller')
 // }) 
 
 //mudou para:
-router.post('/', controller.post);
+// router.post('/', controller.post);
+
+// 8 utilizando o authService na rota post
+router.post('/', authService.authorize ,controller.post);
 
 // assim como put e delete
 // put 
-router.put('/:id', controller.put)
+// router.put('/:id', controller.put)
+router.put('/:id', authService.authorize, controller.put)
 
 // delete
-router.delete('/', controller.delete)
+// router.delete('/', controller.delete)
+router.delete('/', authService.authorize, controller.delete)
 
 //3 - rota get
 router.get('/', controller.get);
