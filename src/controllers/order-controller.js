@@ -2,8 +2,10 @@
 
 const ValidationContract = require("../validators/fluent-validator");
 const repository = require("../repositories/order-repository");
+// 9 authService
+const authService = require('../services/auth-services')
 
-// 6 - guid
+// 8 - guid
 const guid = require('guid')
 //2 - exportando o post
 
@@ -36,9 +38,17 @@ exports.post = async (req, res, next) => {
     // }
     // 5 - try/catch 
     try {
-        //5 - mudar o req.body por um obj do model order e usando o guid para receber o nª do pedido
+        // 7-  token
+         // recupera token   
+        const token = req.body.token || req.query.token || req.headers['x-access-token'];
+        // decodifica token
+        const data = await authService.decodeToken(token)
+        
+        
+        //6 - mudar o req.body por um obj do model order e usando o guid para receber o nª do pedido
         await repository.create({
-            customer: req.body.customer,
+            // customer: req.body.customer, <= mudou =>
+            customer: data.id,
             number: guid.raw().substring(0,6),
             items: req.body.items
         });

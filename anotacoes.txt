@@ -1073,3 +1073,57 @@ Vig. Nono: Autenticação
                 })
                 return res
             }
+
+
+
+Trig.: Recuperando dados do usuário logado
+
+    -- Se olharmos no order-controller, toda vez que um pedido é feito temos o customer sendo passado no corpo da requisição, isso está muito errado, porque se passar o cliente o cliente que está fazendo o pedido, qualquer pessoa pode executar um pedido no nome de outra
+       exports.post = async (req, res, next) => {
+            try {
+                //5 - mudar o req.body por um obj do model order e usando o guid para receber o nª do pedido
+                await repository.create({
+                    customer: req.body.customer, // mudar isso 
+                    number: guid.raw().substring(0,6),
+                    items: req.body.items
+                });
+                res.status(201).send({message: "Pedido cadastrado com sucesso",
+            });
+            } catch (e) {
+                res.status(500).send({message: "Falha ao cadastrar pedido" + e,});
+            }
+        };
+    -- como vamos fazer ? Precisamos pegar o token, desincriptar o token e vê o usuário logado;
+        - Antes, vamos lá no customer-controller e na constante para gerar um token, vamos adicionar o id do usuário:
+        const token = await authService.generateToken({
+        id: customer._id,
+        email: customer.email,
+        name: customer.name
+        })
+    - O id vai facilitar a nossa vida na hora de decodificar o token. 
+    -- Vamos lá, antes do repository.create, vamos obter as informações do token:
+         exports.post = async (req, res, next) => {
+            try {
+                // recupera token   
+                const token = req.body.token || req.query.token || req.headers['x-access-token];
+
+                // decodifica token
+                const data = await authService.decodeToken(token)
+
+                //5 - mudar o req.body por um obj do model order e usando o guid para receber o nª do pedido
+                await repository.create({
+                    customer: req.body.customer, // mudar isso 
+                    number: guid.raw().substring(0,6),
+                    items: req.body.items
+                });
+                res.status(201).send({message: "Pedido cadastrado com sucesso",
+            });
+            } catch (e) {
+                res.status(500).send({message: "Falha ao cadastrar pedido" + e,});
+            }
+        };
+
+    - sabemos que vai ter um  token sempre, então não precisa verificar se tem data, pois já colocamos na rota o 'authorize'
+    sendo assim, se não tiver um token válido, ele nem vai chegar aqui 
+
+    -- no lugar do "req.body.customer", vamos passar o "data.id"

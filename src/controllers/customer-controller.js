@@ -71,9 +71,9 @@ exports.authenticate = async (req, res, next) => {
         res.status(400).send(contract.errors()).end();
         return;
     }
+
     try {
         const customer = await repository.authenticate({
-            name: req.body.name,
             email: req.body.email,
             password: md5(req.body.password + global.SALT_KEY)
         });
@@ -87,6 +87,7 @@ exports.authenticate = async (req, res, next) => {
 
         // pegar as informações do customer e gerar um token
         const token = await authService.generateToken({
+        id: customer._id,
         email: customer.email,
         name: customer.name
         })

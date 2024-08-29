@@ -15,25 +15,19 @@ const authService = require("../services/auth-services")
 // router.post('/', (req, res, next)=>{
 //     res.status(201).send(req.body)
 // }) 
-
 //mudou para:
 // router.post('/', controller.post);
-
 // 8 utilizando o authService na rota post
 router.post('/', authService.authorize ,controller.post);
-
 // assim como put e delete
 // put 
 // router.put('/:id', controller.put)
 router.put('/:id', authService.authorize, controller.put)
-
 // delete
 // router.delete('/', controller.delete)
 router.delete('/', authService.authorize, controller.delete)
-
 //3 - rota get
 router.get('/', controller.get);
-
 // 5 - :slug
 router.get('/:slug', controller.getBySlug);
 //6 - id
