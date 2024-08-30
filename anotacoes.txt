@@ -1078,7 +1078,7 @@ Vig. Nono: Autenticação
 
 Trig.: Recuperando dados do usuário logado
 
-    -- Se olharmos no order-controller, toda vez que um pedido é feito temos o customer sendo passado no corpo da requisição, isso está muito errado, porque se passar o cliente o cliente que está fazendo o pedido, qualquer pessoa pode executar um pedido no nome de outra
+    -- Se olharmos no order-controller, toda vez que um pedido é feito temos o customer sendo passado no corpo da requisição, isso está muito errado, porque se passar o cliente que está fazendo o pedido, qualquer pessoa pode executar um pedido no nome de outra
        exports.post = async (req, res, next) => {
             try {
                 //5 - mudar o req.body por um obj do model order e usando o guid para receber o nª do pedido
@@ -1126,4 +1126,27 @@ Trig.: Recuperando dados do usuário logado
     - sabemos que vai ter um  token sempre, então não precisa verificar se tem data, pois já colocamos na rota o 'authorize'
     sendo assim, se não tiver um token válido, ele nem vai chegar aqui 
 
-    -- no lugar do "req.body.customer", vamos passar o "data.id"
+    -- no lugar do "req.body.customer", vamos passar o "data.id", com isso iremos ligar o id da pessoa que realizou o cadastro do produto, ao invés do nome
+
+
+Trig. Primeiro: refresh  token 
+        - Aqui vamos fazer um refresh do token. Se o seu token está para expirar, ainda válido, tem como fazer um método em que você passa esse token válido e é gerado um novo token em cima desse token válido (se já tiver expirado, não tem o que fazer)
+
+        1 - vamos no customer-controller.js e vamos copiar o metodo "authenticate" e colar embaixo dele e alterar o método para "refreshToken" (ou, como preferir), 
+        2 - lembra que temos esse método no customer-repository também, vamos lá e adicionar um método para pegar o id do usuário:
+            exports.getById = async(id)=>{
+                 const res = await Customer.findById(id)
+                 return res
+            }
+
+        3 - vamos copiar o "recupera token e decodifica token" do order-controller.js e colar no nosso refreshToken, dentro do "try" 
+        atende-se pois já haverá uma constante com o nome de "Token"
+
+        4 - vamos na constante "customer" e mudar o método para getById e o id do customer vai estar dentro do "data.id":
+         const customer = await repository.getById(data.id);
+
+        5 - Em customer-route.js, vamos adicionar a rota para o refreshToken:
+        router.post('/refresh-token', authService.authorize ,controller.refreshToken); 
+        Dando um authorize, óbvio.
+
+        
