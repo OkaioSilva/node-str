@@ -18,14 +18,14 @@ const authService = require("../services/auth-services")
 //mudou para:
 // router.post('/', controller.post);
 // 8 utilizando o authService na rota post
-router.post('/', authService.authorize ,controller.post);
+router.post('/', authService.isAdmin ,controller.post);
 // assim como put e delete
 // put 
 // router.put('/:id', controller.put)
-router.put('/:id', authService.authorize, controller.put)
+router.put('/:id', authService.isAdmin, controller.put)
 // delete
 // router.delete('/', controller.delete)
-router.delete('/', authService.authorize, controller.delete)
+router.delete('/', authService.isAdmin, controller.delete)
 //3 - rota get
 router.get('/', controller.get);
 // 5 - :slug

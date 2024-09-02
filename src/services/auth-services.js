@@ -38,3 +38,32 @@ exports.authorize = function(req, res, next){
         })
     }
 }
+exports.isAdmin = function(req, res, next){
+    // essa função vai servir como interceptador para saber se o cliente cadastrado é admin, ou não
+
+    let token = req.body.token || req.query.token || req.headers['x-access-token']
+    // primeira coisa: vai ver no corpo, depois olha na query, depois no headers
+
+
+    if(!token){
+        res.status(401).json({
+            message: 'Token inválido'
+        })
+    } else{
+        jwt.verify(token, global.SALT_KEY, function(error, decoded){
+            if(error){
+                res.status(401).json({
+                    message: 'Token inválido'
+                })
+            } else{
+                if(decoded.roles.includes('admin')){
+                    next();
+                }else{
+                    res.status(403).json({
+                        message: "Esta funcionalidade é restrita somente à admistradores"
+                    })
+                }
+            }
+        })
+    }
+}

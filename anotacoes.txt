@@ -1130,7 +1130,7 @@ Trig.: Recuperando dados do usuário logado
 
 
 Trig. Primeiro: refresh  token 
-        - Aqui vamos fazer um refresh do token. Se o seu token está para expirar, ainda válido, tem como fazer um método em que você passa esse token válido e é gerado um novo token em cima desse token válido (se já tiver expirado, não tem o que fazer)
+        - Aqui vamos fazer um refresh do token. Se o seu token está para expirar, ainda válido, tem como fazer um método em que você passa esse token válido e é gerado um novo token em cima desse token válido (se já tiver expirado, não tem o que fazer. O token já está inválido)
 
         1 - vamos no customer-controller.js e vamos copiar o metodo "authenticate" e colar embaixo dele e alterar o método para "refreshToken" (ou, como preferir), 
         2 - lembra que temos esse método no customer-repository também, vamos lá e adicionar um método para pegar o id do usuário:
@@ -1140,7 +1140,7 @@ Trig. Primeiro: refresh  token
             }
 
         3 - vamos copiar o "recupera token e decodifica token" do order-controller.js e colar no nosso refreshToken, dentro do "try" 
-        atende-se pois já haverá uma constante com o nome de "Token"
+        atende-se pois já haverá uma constante com o nome de "Token" garantindo que o token chegou e chegou válido
 
         4 - vamos na constante "customer" e mudar o método para getById e o id do customer vai estar dentro do "data.id":
          const customer = await repository.getById(data.id);
@@ -1149,4 +1149,57 @@ Trig. Primeiro: refresh  token
         router.post('/refresh-token', authService.authorize ,controller.refreshToken); 
         Dando um authorize, óbvio.
 
+
+
+trig. Segundo: Autorização
+        - Vamos na pasta "models" e vamos abrir o nosso customer.js:
+            1 -  Vamos adicionar um array de objetos chamados de "roles" ou como preferir:
+                roles: [{
+                    type: String,
+                    required: true,
+                    enum: ['user', 'admin'],
+                    default: 'user'
+                }]
+                - aqui teremos o perfil de nosso cliente. Em que os valores primitivos são "user" e "admin", sendo o valor padrão "user"
+            
+            2 - Agora vamos no nosso customer-controller.js e vamos adicionar o nosso roles no método "POST" da nossa aplicação
+
+            3 - Agora, temos um problema: nas nossas rotas, em product, qualquer cliente autenticado pode criar um produto, deletar e atualizar um produto e não queremos isso, certo ? Vamos fazer com que somente quem é administrador possa fazer essas coisas..
+            Sendo assim, vamos em "services/auth-service.js" e vamos criar um terceiro método para verficar se o cara é adm ou não:
+
+                exports.isAdmin = function(req, res, next){
+                // essa função vai servir como interceptador para saber se o cliente cadastrado é admin, ou não
+                let token = req.body.token || req.query.token || req.headers['x-access-token']
+                // primeira coisa: vai ver no corpo, depois olha na query, depois no headers
+                if(!token){
+                    res.status(401).json({
+                        message: 'Token inválido'
+                    })
+                } else{
+                    jwt.verify(token, global.SALT_KEY, function(error, decoded){
+                        if(error){
+                            res.status(401).json({
+                                message: 'Token inválido'
+                            })
+                        } else{
+                            if(decoded.roles.includes('admin')){
+                                next();
+                            }else{
+                                res.status(403).json({
+                                    message: "Esta funcionalidade é restrita somente à admistradores"
+                                })
+                            }
+                        }
+                    })
+                }
+            }
+
+            4 - Agora vamos no nosso método "authenticate", na constante "token" e vamos adicionar o nosso "roles: customer.roles", não podemos esquecer de adicionar ao refreshToken também
+
+            5 - Agora, temos dois interceptadores, sendo eles o authorize e agora o isAdmin; Tendo isso em vista, vamos nas nossas rotas, em product.js e, ao invés de utilizar o authorize, vamos utilizar o isAdmin no "POST, PUT, DELETE":
+                router.post('/', authService.isAdmin ,controller.post);
+                router.put('/:id', authService.isAdmin, controller.put)
+                router.delete('/', authService.isAdmin, controller.delete)
+
+            6 - feito isso, basta criar um novo usuário e dar a ele um acesso de admin no 3t studio, ou no proprio atlas do mongoDB, realiza uma nova authenticação para pegar um novo token (agora como admin) e pronto. Se você fez tudo certinho e não esqueceu nada, estará funcionando
         
